@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import StoreFront from "./pages/StoreFront";
 import AddProduct from "./pages/AddProduct";
 
-export default function App() {
+function App() {
   return (
     <Router>
       <Routes>
@@ -12,3 +12,5 @@ export default function App() {
     </Router>
   );
 }
+
+export default App;
