@@ -1,33 +1,75 @@
 import { useState } from "react";
-import { addDoc, collection } from "firebase/firestore";
 import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function AddProduct() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState("");
+  const [phone, setPhone] = useState("");
 
-  const add = async () => {
-    await addDoc(collection(db, "products"), {
-      name,
-      price: Number(price),
-      image,
-      status: "in",
-      createdAt: new Date(),
-    });
-    alert("Added");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!name || !price || !image || !phone) {
+      alert("Fill all fields");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "products"), {
+        name,
+        price,
+        image,
+        phone,
+        createdAt: new Date(),
+      });
+
+      alert("Product Added!");
+      setName("");
+      setPrice("");
+      setImage("");
+      setPhone("");
+    } catch (err) {
+      console.log(err);
+      alert("Error adding product");
+    }
   };
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h2>Add Product</h2>
-      <input placeholder="Name" onChange={(e) => setName(e.target.value)} />
-      <input placeholder="Price" onChange={(e) => setPrice(e.target.value)} />
-      <input
-        placeholder="Image URL"
-        onChange={(e) => setImage(e.target.value)}
-      />
-      <button onClick={add}>Add</button>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Product Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        /><br /><br />
+
+        <input
+          type="text"
+          placeholder="Price"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        /><br /><br />
+
+        <input
+          type="text"
+          placeholder="Image URL"
+          value={image}
+          onChange={(e) => setImage(e.target.value)}
+        /><br /><br />
+
+        <input
+          type="text"
+          placeholder="WhatsApp Number (234...)"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        /><br /><br />
+
+        <button type="submit">Add Product</button>
+      </form>
     </div>
   );
 }
