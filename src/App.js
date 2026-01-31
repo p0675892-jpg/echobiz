@@ -6,6 +6,7 @@ import { auth } from "./firebase";
 import StoreFront from "./pages/StoreFront";
 import AddProduct from "./pages/AddProduct";
 import Dashboard from "./pages/Dashboard";
+import EditProduct from "./pages/EditProduct";
 import Login from "./pages/Login";
 
 export default function App() {
@@ -25,7 +26,7 @@ export default function App() {
   return (
     <Router>
       <div style={{ fontFamily: "Arial, sans-serif" }}>
-        
+
         {/* HEADER */}
         <div style={{
           display: "flex",
@@ -43,7 +44,7 @@ export default function App() {
           <div style={{ display: "flex", gap: "15px" }}>
             <Link to="/" style={navStyle}>Store</Link>
             {user && <Link to="/dashboard" style={navStyle}>Dashboard</Link>}
-            <Link to="/add" style={navStyle}>Sell</Link>
+            {user && <Link to="/add" style={navStyle}>Sell</Link>}
             {!user && <Link to="/login" style={navStyle}>Login</Link>}
           </div>
         </div>
@@ -52,8 +53,21 @@ export default function App() {
         <Routes>
           <Route path="/" element={<StoreFront />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/add" element={<Protected user={user}><AddProduct /></Protected>} />
-          <Route path="/dashboard" element={<Protected user={user}><Dashboard /></Protected>} />
+
+          <Route
+            path="/add"
+            element={<Protected user={user}><AddProduct /></Protected>}
+          />
+
+          <Route
+            path="/dashboard"
+            element={<Protected user={user}><Dashboard /></Protected>}
+          />
+
+          <Route
+            path="/edit/:id"
+            element={<Protected user={user}><EditProduct /></Protected>}
+          />
         </Routes>
       </div>
     </Router>
