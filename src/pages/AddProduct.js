@@ -1,83 +1,58 @@
 import { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
 export default function AddProduct() {
+  const nav = useNavigate();
+
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
   const [category, setCategory] = useState("Fashion");
-  const [error, setError] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
 
-  const nav = useNavigate();
-
-  const handleSave = async () => {
-    // 🔴 VALIDATION
+  const save = async () => {
     if (!name || !price || !imageUrl || !whatsapp) {
-      setError("Please fill all fields");
+      alert("All fields required");
       return;
     }
 
-    if (isNaN(price)) {
-      setError("Price must be a number");
+    if (!imageUrl.startsWith("http")) {
+      alert("Enter valid image URL");
       return;
     }
 
-    try {
-      await addDoc(collection(db, "products"), {
-        name,
-        price: Number(price),
-        imageUrl,
-        whatsapp,
-        category,
-        isPublic: true,
-        createdAt: serverTimestamp()
-      });
+    await addDoc(collection(db, "products"), {
+      name,
+      price: Number(price),
+      imageUrl,
+      category,
+      whatsapp
+    });
 
-      nav("/"); // go back to store
-    } catch (err) {
-      setError("Error saving product");
-    }
+    nav("/dashboard");
   };
 
   return (
     <div style={{ padding: 20 }}>
-      <button onClick={() => nav("/")}>⬅ Back</button>
+      <button onClick={() => nav(-1)}>← Back</button>
       <h2>Add Product</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <input placeholder="Name" onChange={e => setName(e.target.value)} />
+      <input placeholder="Price" onChange={e => setPrice(e.target.value)} />
+      <input placeholder="Image URL" onChange={e => setImageUrl(e.target.value)} />
 
-      <input
-        placeholder="Product Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <input
-        placeholder="Price"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-      />
-      <input
-        placeholder="Image URL"
-        value={imageUrl}
-        onChange={(e) => setImageUrl(e.target.value)}
-      />
-      <input
-        placeholder="WhatsApp Number"
-        value={whatsapp}
-        onChange={(e) => setWhatsapp(e.target.value)}
-      />
-
-      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+      <select onChange={e => setCategory(e.target.value)}>
         <option>Fashion</option>
         <option>Electronics</option>
         <option>Shoes</option>
         <option>Bags</option>
       </select>
 
-      <button onClick={handleSave}>Save Product</button>
+      <input placeholder="WhatsApp Number" onChange={e => setWhatsapp(e.target.value)} />
+
+      <button onClick={save}>Save Product</button>
     </div>
   );
 }
