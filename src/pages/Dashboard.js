@@ -1,28 +1,32 @@
-import { useNavigate } from "react-router-dom";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { useEffect, useState } from "react";
+import { collection, query, where, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { db, auth } from "../firebase";
+import { Link } from "react-router-dom";
+import BackButton from "../components/BackButton";
 
-export default function Dashboard({ products = [], sales = [] }) {
-  const nav = useNavigate();
-  const total = sales.reduce((a, b) => a + (b.amount || 0), 0);
+export default function Dashboard(){
+  const [products,setProducts]=useState([]);
 
-  return (
+  useEffect(()=>{
+    const q = query(collection(db,"products"), where("seller","==",auth.currentUser.uid));
+    const unsub = onSnapshot(q,(snap)=>{
+      setProducts(snap.docs.map(d=>({id:d.id,...d.data()})));
+    });
+    return ()=>unsub();
+  },[]);
+
+  return(
     <div>
-      <h2>Dashboard</h2>
-      <button
-        onClick={() => {
-          signOut(auth);
-          nav("/login");
-        }}
-      >
-        Logout
-      </button>
-      <p>Total Products: {products.length}</p>
-      <p>Total Sales: ₦{total}</p>
-      <button onClick={() => nav("/add-product")}>Add Product</button>
-      <button onClick={() => nav("/products")}>Manage Products</button>
-      <button onClick={() => nav("/sales")}>Sales</button>
-      <button onClick={() => nav("/storefront")}>StoreFront</button>
+      <BackButton />
+      <h2>My Products</h2>
+      <Link to="/add"><button>Add New</button></Link>
+      {products.map(p=>(
+        <div key={p.id}>
+          <h3>{p.name}</h3>
+          <Link to={`/edit/${p.id}`}><button>Edit</button></Link>
+          <button onClick={()=>deleteDoc(doc(db,"products",p.id))}>Delete</button>
+        </div>
+      ))}
     </div>
   );
 }
