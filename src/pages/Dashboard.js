@@ -1,30 +1,35 @@
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot, deleteDoc, doc } from "firebase/firestore";
-import { db, auth } from "../firebase";
-import { Link } from "react-router-dom";
-import BackButton from "../components/BackButton";
+import { collection, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { db } from "../firebase";
+import { useNavigate } from "react-router-dom";
 
-export default function Dashboard(){
-  const [products,setProducts]=useState([]);
+export default function Dashboard() {
+  const nav = useNavigate();
+  const [products, setProducts] = useState([]);
 
-  useEffect(()=>{
-    const q = query(collection(db,"products"), where("seller","==",auth.currentUser.uid));
-    const unsub = onSnapshot(q,(snap)=>{
-      setProducts(snap.docs.map(d=>({id:d.id,...d.data()})));
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "products"), snap => {
+      setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
-    return ()=>unsub();
-  },[]);
+    return () => unsub();
+  }, []);
 
-  return(
-    <div>
-      <BackButton />
-      <h2>My Products</h2>
-      <Link to="/add"><button>Add New</button></Link>
-      {products.map(p=>(
-        <div key={p.id}>
+  const handleDelete = async (id) => {
+    await deleteDoc(doc(db, "products", id));
+    alert("Deleted");
+  };
+
+  return (
+    <div style={{ padding: 20 }}>
+      <button onClick={() => nav("/")}>← Back</button>
+      <h2>Seller Dashboard</h2>
+
+      {products.map(p => (
+        <div key={p.id} style={{ border: "1px solid #ccc", margin: 10, padding: 10 }}>
           <h3>{p.name}</h3>
-          <Link to={`/edit/${p.id}`}><button>Edit</button></Link>
-          <button onClick={()=>deleteDoc(doc(db,"products",p.id))}>Delete</button>
+          <p>₦{p.price}</p>
+          <button onClick={() => nav(`/edit/${p.id}`)}>Edit</button>
+          <button onClick={() => handleDelete(p.id)}>Delete</button>
         </div>
       ))}
     </div>
