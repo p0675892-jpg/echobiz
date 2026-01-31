@@ -1,52 +1,31 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 export default function EditProduct() {
   const { id } = useParams();
   const nav = useNavigate();
-
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
+  const [data, setData] = useState({});
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      const snap = await getDoc(doc(db, "products", id));
-      if (snap.exists()) {
-        const data = snap.data();
-        setName(data.name);
-        setPrice(data.price);
-        setImageUrl(data.imageUrl);
-        setWhatsapp(data.whatsapp);
-      }
-    };
-    fetchProduct();
+    getDoc(doc(db, "products", id)).then(d => setData(d.data()));
   }, [id]);
 
-  const updateProduct = async () => {
-    await updateDoc(doc(db, "products", id), {
-      name,
-      price: Number(price),
-      imageUrl,
-      whatsapp
-    });
-    nav("/");
+  const save = async () => {
+    await updateDoc(doc(db, "products", id), data);
+    nav("/dashboard");
   };
 
   return (
-    <div>
-      <button onClick={() => nav("/")}>⬅ Back</button>
+    <div style={{ padding: 20 }}>
+      <button onClick={() => nav(-1)}>⬅ Back</button>
       <h2>Edit Product</h2>
 
-      <input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
-      <input value={price} onChange={e => setPrice(e.target.value)} placeholder="Price" />
-      <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Image URL" />
-      <input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="WhatsApp" />
-
-      <button onClick={updateProduct}>Update Product</button>
+      <input value={data.name || ""} onChange={e => setData({ ...data, name: e.target.value })} placeholder="Name" />
+      <input value={data.price || ""} onChange={e => setData({ ...data, price: e.target.value })} placeholder="Price" />
+      <input value={data.imageUrl || ""} onChange={e => setData({ ...data, imageUrl: e.target.value })} placeholder="Image URL" />
+      <button onClick={save}>Save</button>
     </div>
   );
 }
