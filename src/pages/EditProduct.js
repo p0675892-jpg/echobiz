@@ -1,58 +1,41 @@
-import { useEffect, useState } from "react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useEffect,useState } from "react";
+import { doc,getDoc,updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 
-export default function EditProduct() {
-  const { id } = useParams();
-  const nav = useNavigate();
+export default function EditProduct(){
+  const {id}=useParams();
+  const nav=useNavigate();
+  const [name,setName]=useState("");
+  const [price,setPrice]=useState("");
+  const [imageUrl,setImageUrl]=useState("");
+  const [category,setCategory]=useState("Fashion");
 
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [category, setCategory] = useState("Fashion");
-
-  useEffect(() => {
-    const fetchProduct = async () => {
-      const snap = await getDoc(doc(db, "products", id));
-      if (snap.exists()) {
-        const data = snap.data();
-        setName(data.name);
-        setPrice(data.price);
-        setImageUrl(data.imageUrl);
-        setCategory(data.category);
+  useEffect(()=>{
+    getDoc(doc(db,"products",id)).then(snap=>{
+      if(snap.exists()){
+        const d=snap.data();
+        setName(d.name); setPrice(d.price); setImageUrl(d.imageUrl); setCategory(d.category);
       }
-    };
-    fetchProduct();
-  }, [id]);
-
-  const save = async () => {
-    await updateDoc(doc(db, "products", id), {
-      name,
-      price: Number(price),
-      imageUrl,
-      category
     });
+  },[id]);
+
+  const save=async()=>{
+    await updateDoc(doc(db,"products",id),{name,price:Number(price),imageUrl,category});
     nav("/dashboard");
   };
 
-  return (
-    <div style={{ padding: 20 }}>
-      <button onClick={() => nav(-1)}>← Back</button>
+  return(
+    <div style={{padding:20}}>
+      <button onClick={()=>nav(-1)}>← Back</button>
       <h2>Edit Product</h2>
-
-      <input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
-      <input value={price} onChange={e => setPrice(e.target.value)} placeholder="Price" />
-      <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Image URL" />
-
-      <select value={category} onChange={e => setCategory(e.target.value)}>
-        <option>Fashion</option>
-        <option>Electronics</option>
-        <option>Shoes</option>
-        <option>Bags</option>
+      <input value={name} onChange={e=>setName(e.target.value)}/>
+      <input value={price} onChange={e=>setPrice(e.target.value)}/>
+      <input value={imageUrl} onChange={e=>setImageUrl(e.target.value)}/>
+      <select value={category} onChange={e=>setCategory(e.target.value)}>
+        <option>Fashion</option><option>Electronics</option><option>Shoes</option><option>Bags</option>
       </select>
-
-      <button onClick={save}>Save Changes</button>
+      <button onClick={save}>Save</button>
     </div>
   );
 }
