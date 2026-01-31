@@ -3,18 +3,10 @@
   "version": "0.1.0",
   "private": true,
 
-  "engines": {
-    "node": "18.x"
-  },
-
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3",
-    "react-scripts": "5.0.1",
-    "firebase": "^12.8.0",
-    "web-vitals": "^2.1.4",
-    "ajv": "6.12.6"
+    "react-scripts": "5.0.1"
   },
 
   "scripts": {
@@ -22,13 +14,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
 
   "browserslist": {
@@ -42,5 +27,14 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+
+  "overrides": {
+    "ajv": "6.12.6",
+    "schema-utils": "2.7.1"
+  },
+
+  "engines": {
+    "node": "18.x"
   }
 }
