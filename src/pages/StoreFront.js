@@ -1,108 +1,65 @@
-import React from "react";
-
-const products = [
-  {
-    id: 1,
-    name: "E-GOWN TEST",
-    price: "₦3956",
-    image: "https://via.placeholder.com/300x200.png?text=E-Gown",
-    phone: "2348109430563"
-  },
-  {
-    id: 2,
-    name: "Smart Watch",
-    price: "₦15,000",
-    image: "https://via.placeholder.com/300x200.png?text=Smart+Watch",
-    phone: "2348109430563"
-  },
-  {
-    id: 3,
-    name: "Ladies Handbag",
-    price: "₦8,500",
-    image: "https://via.placeholder.com/300x200.png?text=Handbag",
-    phone: "2348109430563"
-  },
-  {
-    id: 4,
-    name: "Men Sneakers",
-    price: "₦22,000",
-    image: "https://via.placeholder.com/300x200.png?text=Sneakers",
-    phone: "2348109430563"
-  }
-];
+import { useEffect, useState } from "react";
+import { db } from "../firebase";
+import { collection, onSnapshot } from "firebase/firestore";
 
 export default function StoreFront() {
-  const handleWhatsApp = (product) => {
-    const message = `Hello I want to buy ${product.name}`;
-    const url = `https://wa.me/${product.phone}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
-  };
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "products"), (snapshot) => {
+      setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsub();
+  }, []);
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>EchoBiz StoreFront</h1>
-      <p style={styles.subtitle}>Discover products & chat sellers instantly</p>
+    <div style={{ padding: "20px" }}>
+      <h1>EchoBiz StoreFront</h1>
+      <p>Discover products & chat sellers instantly</p>
 
-      <div style={styles.grid}>
-        {products.map((product) => (
-          <div key={product.id} style={styles.card}>
-            <img src={product.image} alt={product.name} style={styles.image} />
+      <a href="/add" style={{
+        display: "inline-block",
+        marginBottom: "20px",
+        padding: "10px 15px",
+        background: "#007bff",
+        color: "white",
+        textDecoration: "none",
+        borderRadius: "5px"
+      }}>
+        ➕ Sell a Product
+      </a>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
+        {products.map(product => (
+          <div key={product.id} style={{
+            border: "1px solid #ddd",
+            padding: "10px",
+            borderRadius: "5px"
+          }}>
+            <img src={product.image} alt={product.name} style={{ width: "100%", height: "150px", objectFit: "cover" }} />
             <h3>{product.name}</h3>
-            <p style={styles.price}>{product.price}</p>
-            <button
-              style={styles.button}
-              onClick={() => handleWhatsApp(product)}
+            <p>₦{product.price}</p>
+
+            <a
+              href={`https://api.whatsapp.com/send?phone=${product.phone}&text=Hello I want to buy ${product.name}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "block",
+                marginTop: "10px",
+                padding: "8px",
+                background: "#25D366",
+                color: "white",
+                textAlign: "center",
+                textDecoration: "none",
+                borderRadius: "5px"
+              }}
             >
               Chat to Buy on WhatsApp
-            </button>
+            </a>
           </div>
         ))}
       </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    padding: "20px",
-    fontFamily: "Arial, sans-serif",
-    textAlign: "center",
-    background: "#f5f5f5",
-    minHeight: "100vh"
-  },
-  title: {
-    fontSize: "28px",
-    fontWeight: "bold"
-  },
-  subtitle: {
-    color: "gray",
-    marginBottom: "20px"
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "20px"
-  },
-  card: {
-    background: "#fff",
-    padding: "15px",
-    borderRadius: "10px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
-  },
-  image: {
-    width: "100%",
-    borderRadius: "8px"
-  },
-  price: {
-    fontWeight: "bold",
-    margin: "10px 0"
-  },
-  button: {
-    background: "#25D366",
-    color: "#fff",
-    padding: "10px",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer"
-  }
-};
