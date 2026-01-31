@@ -1,30 +1,52 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase";
 import { useEffect, useState } from "react";
-import BackButton from "../components/BackButton";
+import { db } from "../firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
-export default function EditProduct(){
-  const {id}=useParams();
-  const nav=useNavigate();
-  const [data,setData]=useState({});
+export default function EditProduct() {
+  const { id } = useParams();
+  const nav = useNavigate();
 
-  useEffect(()=>{
-    getDoc(doc(db,"products",id)).then(d=>setData(d.data()));
-  },[]);
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
 
-  const save=async()=>{
-    await updateDoc(doc(db,"products",id),data);
-    nav("/dashboard");
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const snap = await getDoc(doc(db, "products", id));
+      if (snap.exists()) {
+        const data = snap.data();
+        setName(data.name);
+        setPrice(data.price);
+        setImageUrl(data.imageUrl);
+        setWhatsapp(data.whatsapp);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  const updateProduct = async () => {
+    await updateDoc(doc(db, "products", id), {
+      name,
+      price: Number(price),
+      imageUrl,
+      whatsapp
+    });
+    nav("/");
   };
 
-  return(
+  return (
     <div>
-      <BackButton to="/dashboard"/>
+      <button onClick={() => nav("/")}>⬅ Back</button>
       <h2>Edit Product</h2>
-      <input value={data.name||""} onChange={e=>setData({...data,name:e.target.value})}/>
-      <input value={data.price||""} onChange={e=>setData({...data,price:e.target.value})}/>
-      <button onClick={save}>Update</button>
+
+      <input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
+      <input value={price} onChange={e => setPrice(e.target.value)} placeholder="Price" />
+      <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Image URL" />
+      <input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="WhatsApp" />
+
+      <button onClick={updateProduct}>Update Product</button>
     </div>
   );
 }
