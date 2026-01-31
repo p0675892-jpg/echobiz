@@ -1,58 +1,36 @@
 import { useState } from "react";
+import { addDoc, collection } from "firebase/firestore";
+import { db, auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import BackButton from "../components/BackButton";
 
-function AddProduct() {
-  const navigate = useNavigate();
+export default function AddProduct() {
+  const nav = useNavigate();
+  const [data, setData] = useState({
+    name:"", price:"", image:"", phone:"", category:"Fashion"
+  });
 
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [image, setImage] = useState("");
-  const [phone, setPhone] = useState("");
-  const [category, setCategory] = useState("");
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const newProduct = {
-      id: Date.now(),
-      name,
-      price,
-      image,
-      phone,
-      category,
-    };
-
-    const existing = JSON.parse(localStorage.getItem("products")) || [];
-    const updated = [...existing, newProduct];
-
-    localStorage.setItem("products", JSON.stringify(updated));
-    navigate("/");
+  const save = async () => {
+    await addDoc(collection(db,"products"), {
+      ...data,
+      seller: auth.currentUser.uid
+    });
+    nav("/dashboard");
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <button onClick={() => navigate("/")}>⬅ Back</button>
-
+    <div>
+      <BackButton />
       <h2>Add Product</h2>
-
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "400px" }}>
-        <input placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} required />
-        <input placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} required />
-        <input placeholder="Image URL" value={image} onChange={(e) => setImage(e.target.value)} required />
-        <input placeholder="WhatsApp Number (234...)" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-
-        <select value={category} onChange={(e) => setCategory(e.target.value)} required>
-          <option value="">Select Category</option>
-          <option value="Fashion">Fashion</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Shoes">Shoes</option>
-          <option value="Bags">Bags</option>
-        </select>
-
-        <button type="submit">Add Product</button>
-      </form>
+      <input placeholder="Name" onChange={e=>setData({...data,name:e.target.value})}/>
+      <input placeholder="Price" onChange={e=>setData({...data,price:e.target.value})}/>
+      <input placeholder="Image URL" onChange={e=>setData({...data,image:e.target.value})}/>
+      <input placeholder="WhatsApp Phone" onChange={e=>setData({...data,phone:e.target.value})}/>
+      <select onChange={e=>setData({...data,category:e.target.value})}>
+        <option>Fashion</option><option>Electronics</option>
+        <option>Shoes</option><option>Bags</option>
+      </select>
+      <button onClick={save}>Save</button>
     </div>
   );
 }
-
-export default AddProduct;
