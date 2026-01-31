@@ -6,7 +6,9 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "schema-utils": "2.7.1",
+    "ajv": "6.12.6"
   },
 
   "scripts": {
@@ -27,11 +29,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-
-  "overrides": {
-    "ajv": "6.12.6",
-    "schema-utils": "2.7.1"
   },
 
   "engines": {
