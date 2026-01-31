@@ -1,33 +1,69 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
+import React from "react";
+import "./App.css";
 
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import StoreFront from "./pages/StoreFront";
+const products = [
+  {
+    name: "E-GOWN TEST",
+    price: "₦3956",
+    image: "https://via.placeholder.com/200",
+    phone: "2348109430563"
+  },
+  {
+    name: "Smart Watch",
+    price: "₦15,000",
+    image: "https://via.placeholder.com/200",
+    phone: "2348109430563"
+  },
+  {
+    name: "Ladies Handbag",
+    price: "₦8,500",
+    image: "https://via.placeholder.com/200",
+    phone: "2348109430563"
+  },
+  {
+    name: "Men Sneakers",
+    price: "₦22,000",
+    image: "https://via.placeholder.com/200",
+    phone: "2348109430563"
+  }
+];
 
-export default function App() {
+function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
+    <div className="app">
 
-          {/* Public */}
-          <Route path="/" element={<StoreFront />} />
-          <Route path="/login" element={<Login />} />
+      {/* HEADER */}
+      <header className="header">
+        <h1>EchoBiz StoreFront</h1>
+        <p>Discover products & chat sellers instantly</p>
+      </header>
 
-          {/* Seller side */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+      {/* PRODUCT GRID */}
+      <div className="product-grid">
+        {products.map((product, index) => {
+          const message = `Hello I want to buy ${product.name}`;
+          const whatsappLink = `https://api.whatsapp.com/send?phone=${product.phone}&text=${encodeURIComponent(message)}`;
 
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+          return (
+            <div key={index} className="product-card">
+              <img src={product.image} alt={product.name} />
+              <h3>{product.name}</h3>
+              <p className="price">{product.price}</p>
+              <a href={whatsappLink} target="_blank" rel="noreferrer">
+                <button className="buy-btn">Chat to Buy on WhatsApp</button>
+              </a>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <p>© 2026 EchoBiz — Chat sellers directly via WhatsApp</p>
+      </footer>
+
+    </div>
   );
 }
+
+export default App;
