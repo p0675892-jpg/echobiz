@@ -1,20 +1,40 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
 import StoreFront from "./pages/StoreFront";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import AddProduct from "./pages/AddProduct";
-import Settings from "./pages/Settings";
+import EditProduct from "./pages/EditProduct";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-export default function App() {
+function App() {
   return (
     <BrowserRouter>
-      <Navbar />
       <Routes>
         <Route path="/" element={<StoreFront />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/add" element={<AddProduct />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/add" element={
+          <ProtectedRoute>
+            <AddProduct />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/edit/:id" element={
+          <ProtectedRoute>
+            <EditProduct />
+          </ProtectedRoute>
+        } />
       </Routes>
     </BrowserRouter>
   );
 }
+
+export default App;
